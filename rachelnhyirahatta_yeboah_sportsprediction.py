@@ -124,12 +124,6 @@ param_rf ={
 
 model_gs = GridSearchCV(rf, param_rf, cv=cv, scoring="neg_mean_squared_error")
 
-model_gs.fit(Xtrain, Ytrain)
-
-pkl.dump(model_gs, open('male_players (legacy)' + model_gs.__class__.__name__ + '.pkl', 'wb'))
-y_pred = model_gs.predict(Xtest)
-print(model_gs.__class__.__name__, mean_squared_error(y_test, y_pred))
-
 """#### TESTING"""
 
 test_data.head()
@@ -186,13 +180,6 @@ int_encoded
 onehot_encoded = onehot_encoder.fit_transform(int_encoded)
 print(onehot_encoded)
 
-X = pd.concat([numeric_data, test_non_numeric[column]], axis = 1)
-X.head()
-
-scaled = StandardScaler()
-scaled_test_data = scaled.fit_transform(X)
-scaled_test_data = pd.DataFrame(scaled_test_data, columns = X.columns)
-
 pd.Series(y).value_counts()
 
 """#### TRAINING THE TEST DATASET"""
@@ -219,3 +206,35 @@ print(f"{model} MSE: {mse:.2f}, R2: {r2}")
 pkl.dump(model_gs, open('players_22' + model_gs.__class__.__name__ + '.pkl', 'wb'))
 #y_pred = model_gs.predict(Xtest)
 print(model_gs.__class__.__name__, mean_squared_error(Ytest, y_pred))
+
+"""#### DEPLOYMENT"""
+
+!pip install streamlit
+
+import streamlit as st
+import altair as alt
+
+st.title('Sports Prediction')
+
+def main():
+  return pd.read_csv("/content/drive/My Drive/players_22.csv")
+
+df = main()
+
+st.write('You can edit the data below')
+st.data_editor(df)
+
+st.write('A bar chat showing the each players overall rating')
+st.bar_chart(df[['nationality_name', 'short_name', 'overall']],
+             x = 'short_name',
+             y = 'overall')
+
+# making it interactive
+selected_nationality = st.selectbox('Select a nationality', df['nationality_name'].unique())
+
+if selected_nationality:
+  df_selected_nationality = df[df['nationality_name'] == selected_nationality]
+  st.bar_chart(df_selected_nationality,
+               x = 'short_name',
+               y = 'overall')
+
