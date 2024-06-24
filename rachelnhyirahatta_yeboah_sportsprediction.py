@@ -209,7 +209,7 @@ print(model_gs.__class__.__name__, mean_squared_error(Ytest, y_pred))
 
 """#### DEPLOYMENT"""
 
-!pip install streamlit
+pip install streamlit
 
 import streamlit as st
 import altair as alt
